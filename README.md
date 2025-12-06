@@ -1,7 +1,7 @@
-# WasmEdge + Go + TypeScript ETL POC
+# WasmEdge + Go + TypeScript/JavaScript
 
 ## 概要
-このプロジェクトは、Go CLI、TypeScript ETL処理、WasmEdge WebAssemblyランタイムを組み合わせたETLシステムのPOC（概念実証）です。
+このプロジェクトは、GoからTypeScript/JavaScriptを呼び出す仕組みを提供します。WasmEdgeとQuickJSを使用して、TypeScript/JavaScriptコードをWebAssembly環境で安全に実行できます。
 
 ## アーキテクチャ
 ```
@@ -13,7 +13,7 @@ WasmEdge + QuickJS
     ↓
 JavaScript/TypeScript 実行
     ↓
-ETL処理結果
+実行結果
 ```
 
 ## プロジェクト構造
@@ -26,10 +26,16 @@ go-wasm-js/
 ├── setup.sh                # セットアップスクリプト（WasmEdge、QuickJS のインストール）
 ├── build.sh                # ビルドスクリプト（macOS ライブラリパス対応）
 ├── scripts/
-│   ├── types.ts            # 型定義
-│   ├── validators.ts       # バリデーター
-│   ├── transformer.ts      # データ変換処理
-│   ├── etl-sample.ts       # サンプルETL
+│   ├── hello.ts            # チュートリアル: HelloWorld
+│   ├── calc.ts             # チュートリアル: 変数と関数
+│   ├── array-demo.ts       # チュートリアル: 配列とループ
+│   ├── json-demo.ts        # チュートリアル: オブジェクトとJSON
+│   ├── async-demo.ts       # チュートリアル: 非同期処理
+│   ├── use-library.ts      # チュートリアル: 外部ライブラリの利用
+│   ├── types.ts            # 型定義（サンプル用）
+│   ├── validators.ts       # バリデーター（サンプル用）
+│   ├── transformer.ts      # データ変換処理（サンプル用）
+│   ├── etl-sample.ts       # サンプルスクリプト1
 │   ├── lib-sample.ts       # 外部ライブラリ利用サンプル1（直接配置）
 │   ├── yaml-sample.ts      # 外部ライブラリ利用サンプル2（別プロジェクト）
 │   ├── host-context.ts     # ホストコンテキスト（型定義）
@@ -129,20 +135,20 @@ go build -o wasmedge-etl main.go
 
 ```bash
 # TypeScript ファイルを直接実行（自動コンパイル）
-./wasmedge-etl --ts scripts/etl-sample.ts
+./wasmedge-etl --ts scripts/lib-sample.ts
 
 # または、コンパイル済みJavaScriptを実行
-./wasmedge-etl --js compiled/etl-sample.js
+./wasmedge-etl --js compiled/lib-sample.js
 ```
 
 #### go run を使用（開発時）
 
 ```bash
 # TypeScript ファイルを直接実行（自動コンパイル）
-go run main.go --ts scripts/etl-sample.ts
+go run main.go --ts scripts/lib-sample.ts
 
 # または、コンパイル済みJavaScriptを実行
-go run main.go --js compiled/etl-sample.js
+go run main.go --js compiled/lib-sample.js
 ```
 
 #### TypeScript の事前コンパイル
@@ -150,6 +156,213 @@ go run main.go --js compiled/etl-sample.js
 ```bash
 npx tsc
 ```
+
+## チュートリアル
+
+段階的に学んでいきましょう。まずは簡単なHelloWorldから始めます。
+
+### ステップ1: HelloWorld
+
+最もシンプルなスクリプトから始めましょう。
+
+1. **スクリプトファイルを作成**
+
+```bash
+# scripts/hello.ts を作成
+cat > scripts/hello.ts << 'EOF'
+// scripts/hello.ts
+console.log('Hello, World!');
+console.log('TypeScript/JavaScript running in WasmEdge + QuickJS');
+EOF
+```
+
+2. **実行**
+
+```bash
+# ビルド済みバイナリを使用
+./wasmedge-etl --ts scripts/hello.ts
+
+# または go run を使用
+go run main.go --ts scripts/hello.ts
+```
+
+**期待される出力:**
+```
+🎯 WasmEdge ETL POC
+==================
+📝 Compiling TypeScript: scripts/hello.ts
+✅ Compiled to: compiled/hello.js
+🚀 Executing WASM: wasmedge_quickjs.wasm with script: compiled/hello.js
+Hello, World!
+TypeScript/JavaScript running in WasmEdge + QuickJS
+⚡ Execution completed in: 15ms
+🎉 POC execution completed successfully!
+```
+
+### ステップ2: 変数と関数
+
+次に、変数と関数を使った簡単な計算をしてみましょう。
+
+```typescript
+// scripts/calc.ts
+function add(a: number, b: number): number {
+  return a + b;
+}
+
+function multiply(a: number, b: number): number {
+  return a * b;
+}
+
+const num1 = 10;
+const num2 = 5;
+
+console.log(`${num1} + ${num2} = ${add(num1, num2)}`);
+console.log(`${num1} × ${num2} = ${multiply(num1, num2)}`);
+```
+
+**実行:**
+```bash
+./wasmedge-etl --ts scripts/calc.ts
+```
+
+### ステップ3: 配列とループ
+
+配列操作とループを学びましょう。
+
+```typescript
+// scripts/array-demo.ts
+const fruits = ['apple', 'banana', 'orange'];
+
+console.log('Fruits:');
+fruits.forEach((fruit, index) => {
+  console.log(`  ${index + 1}. ${fruit}`);
+});
+
+// 配列の変換
+const upperFruits = fruits.map(fruit => fruit.toUpperCase());
+console.log('\nUppercase fruits:', upperFruits);
+
+// フィルタリング
+const longFruits = fruits.filter(fruit => fruit.length > 5);
+console.log('Long fruits:', longFruits);
+```
+
+**実行:**
+```bash
+./wasmedge-etl --ts scripts/array-demo.ts
+```
+
+### ステップ4: オブジェクトとJSON
+
+オブジェクト操作とJSON処理を学びましょう。
+
+```typescript
+// scripts/json-demo.ts
+interface User {
+  name: string;
+  age: number;
+  email: string;
+}
+
+const user: User = {
+  name: 'John Doe',
+  age: 30,
+  email: 'john@example.com'
+};
+
+console.log('User object:');
+console.log(JSON.stringify(user, null, 2));
+
+// JSON文字列からオブジェクトへ
+const jsonString = '{"name":"Jane","age":25,"email":"jane@example.com"}';
+const parsedUser = JSON.parse(jsonString) as User;
+console.log('\nParsed user:');
+console.log(`Name: ${parsedUser.name}, Age: ${parsedUser.age}`);
+```
+
+**実行:**
+```bash
+./wasmedge-etl --ts scripts/json-demo.ts
+```
+
+### ステップ5: 非同期処理
+
+`async/await`を使った非同期処理を学びましょう。
+
+```typescript
+// scripts/async-demo.ts
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => {
+    // QuickJSではsetTimeoutが使えないため、即座に解決
+    // 実際の環境では、Go側でタイマー機能を提供する必要があります
+    resolve();
+  });
+}
+
+async function processData() {
+  console.log('Processing started...');
+  
+  // データ処理のシミュレーション
+  const data = [1, 2, 3, 4, 5];
+  const doubled = data.map(n => n * 2);
+  
+  console.log('Original:', data);
+  console.log('Doubled:', doubled);
+  console.log('Processing completed!');
+}
+
+processData()
+  .then(() => {
+    console.log('All done!');
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+```
+
+**実行:**
+```bash
+./wasmedge-etl --ts scripts/async-demo.ts
+```
+
+### ステップ6: 外部ライブラリの利用
+
+プロジェクトに含まれているライブラリを使ってみましょう。
+
+```typescript
+// scripts/use-library.ts
+import { formatCurrency, slugify, truncate } from './libs/simple-utils.js';
+
+console.log('=== Library Usage Demo ===\n');
+
+// 通貨フォーマット
+console.log('Currency formatting:');
+console.log(formatCurrency(1000));
+console.log(formatCurrency(5000, 'JPY'));
+
+// スラッグ化
+console.log('\nSlugify:');
+console.log(slugify('Hello World!'));
+console.log(slugify('TypeScript & JavaScript'));
+
+// テキスト切り詰め
+console.log('\nTruncate:');
+const longText = 'This is a very long text that needs truncation';
+console.log(truncate(longText, 20));
+```
+
+**実行:**
+```bash
+./wasmedge-etl --ts scripts/use-library.ts
+```
+
+### 次のステップ
+
+基本的な使い方を理解したら、以下を試してみましょう：
+
+- **サンプルコードの確認**: `scripts/lib-sample.ts` - ライブラリの詳細な使用例
+- **YAML処理**: `scripts/yaml-sample.ts` - 外部ライブラリ（js-yaml）の利用例
+- **データ処理**: `scripts/etl-sample.ts` - より複雑なデータ処理の例
 
 ## 使用方法
 
@@ -160,81 +373,71 @@ npx tsc
 # ビルド（初回のみ）
 ./build.sh
 
-# TypeScript ETL スクリプト実行
-./wasmedge-etl --ts scripts/etl-sample.ts
+# TypeScript スクリプト実行
+./wasmedge-etl --ts scripts/lib-sample.ts
 
 # JavaScript ファイル実行
-./wasmedge-etl --js compiled/etl-sample.js
+./wasmedge-etl --js compiled/lib-sample.js
 
 # カスタムWASMランタイム指定
-./wasmedge-etl --ts scripts/etl-sample.ts --wasm custom_quickjs.wasm
+./wasmedge-etl --ts scripts/lib-sample.ts --wasm custom_quickjs.wasm
 ```
 
 #### go run を使用（開発時）
 ```bash
-# TypeScript ETL スクリプト実行
-go run main.go --ts scripts/etl-sample.ts
+# TypeScript スクリプト実行
+go run main.go --ts scripts/lib-sample.ts
 
 # JavaScript ファイル実行
-go run main.go --js compiled/etl-sample.js
+go run main.go --js compiled/lib-sample.js
 
 # カスタムWASMランタイム指定
-go run main.go --ts scripts/etl-sample.ts --wasm custom_quickjs.wasm
+go run main.go --ts scripts/lib-sample.ts --wasm custom_quickjs.wasm
 ```
 
 ### 出力例
 ```
-🎯 WasmEdge ETL POC
-==================
-📝 Compiling TypeScript: scripts/etl-sample.ts
-✅ Compiled to: compiled/etl-sample.js
-🚀 Executing WASM: wasmedge_quickjs.wasm with script: compiled/etl-sample.js
-🚀 Starting ETL Pipeline - Processing 4 records
-Processing record 1: john doe
-✅ Record 1 processed successfully
-Processing record 2: jane smith
-✅ Record 2 processed successfully
-Processing record 3: 
-⚠️  Record 3 has validation errors: [ "Invalid name: ", "Invalid email: invalid-email", "Invalid age: abc" ]
-Processing record 4: bob wilson
-✅ Record 4 processed successfully
+🎯 WasmEdge TypeScript/JavaScript Runner
+========================================
+📝 Compiling TypeScript: scripts/lib-sample.ts
+✅ Compiled to: compiled/lib-sample.js
+🚀 Executing WASM: wasmedge_quickjs.wasm with script: compiled/lib-sample.js
+📚 Library Usage Sample
+======================
 
-📊 ETL Pipeline Statistics:
-   Total Records: 4
-   Processed: 4
-   Valid: 3
-   Errors: 1
-   Processing Time: 15ms
+1. Currency Formatting:
+   $1000 → $1,000
+   ¥5000 → ¥5,000
+   €2500 → €2,500
 
-🎯 Final Result:
-{
-  "success": true,
-  "data": [...],
-  "stats": {
-    "totalRecords": 4,
-    "processedRecords": 4,
-    "validRecords": 3,
-    "errorRecords": 1,
-    "processingTimeMs": 15
-  }
-}
-⚡ Execution completed in: 89ms
+2. Slugify:
+   "Hello World!" → "hello-world"
+   "TypeScript & JavaScript" → "typescript-javascript"
+
+3. Truncate:
+   "This is a very long text..." → "This is a very lo..."
+
+4. Simple Cache:
+   Cache size: 3
+   user:1 = 100
+   user:2 = 200
+
+✅ Library usage demonstration completed!
+⚡ Execution completed in: 23ms
 🎉 POC execution completed successfully!
 ```
 
 ## カスタマイズ
 
-### 新しいETL処理の追加
+### 新しいスクリプトの追加
 1. `scripts/` ディレクトリに新しい `.ts` ファイルを作成
-2. `types.ts` の型定義を参考に、データ構造を定義
-3. `transformer.ts` のパターンに従って変換ロジックを実装
-4. TypeScript コンパイル後、Go CLI で実行
+2. TypeScriptコードを記述
+3. Go CLIで実行: `./wasmedge-etl --ts scripts/your-script.ts`
 
-### バリデーションルールの追加
-`scripts/validators.ts` に新しいバリデーション関数を追加
-
-### データ変換の追加
-`scripts/transformer.ts` に新しい変換メソッドを追加
+### サンプルコードの参考
+- `scripts/etl-sample.ts` - データ処理のサンプル
+- `scripts/lib-sample.ts` - ライブラリ利用のサンプル
+- `scripts/yaml-sample.ts` - 外部ライブラリ（js-yaml）利用のサンプル
 
 ### 外部ライブラリの利用
 
@@ -439,7 +642,7 @@ const result = MyLibrary.someFunction();
 
 ## 技術スタック
 - **Go**: CLI制御、WasmEdge統合
-- **TypeScript**: 型安全なETL処理ロジック
+- **TypeScript**: 型安全なJavaScriptコード
 - **WasmEdge**: WebAssemblyランタイム
 - **QuickJS**: JavaScript実行エンジン
 
@@ -485,7 +688,7 @@ const result = MyLibrary.someFunction();
 ## パフォーマンス
 - TypeScript コンパイル: ~1-2秒
 - WASM 初期化: ~50-100ms
-- ETL処理実行: ~10-50ms (データサイズ依存)
+- スクリプト実行: ~10-50ms (処理内容依存)
 - 総実行時間: ~1-3秒 (初回コンパイル含む)
 
 ## セキュリティ
@@ -561,6 +764,7 @@ npx tsc --project tsconfig.json
 - ストリーミング処理
 - Kubernetes デプロイメント
 - CI/CD パイプライン統合
+- プラグインシステムの構築
 
 ## ライセンス
 MIT License
