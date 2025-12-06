@@ -1,0 +1,44 @@
+# Go build artifacts
+wasmedge-etl
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# TypeScript compiled output
+compiled/
+*.js.map
+
+# WASM runtime (downloaded file)
+wasmedge_quickjs.wasm
+
+# Temporary files
+.host-context.json
+*.tmp
+*.log
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Node modules (if any)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment files
+.env
+.env.local
+
+# Test coverage
+coverage/
+*.coverprofile
+

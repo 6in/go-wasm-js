@@ -1,0 +1,33 @@
+[
+  {
+    "id": 1,
+    "name": "alice johnson", 
+    "email": "ALICE@COMPANY.COM",
+    "age": "29",
+    "department": "engineering",
+    "salary": 95000
+  },
+  {
+    "id": 2,
+    "name": "bob smith",
+    "email": "bob.smith@company.com", 
+    "age": 35,
+    "department": "sales",
+    "salary": 75000
+  },
+  {
+    "id": 3,
+    "name": "charlie brown",
+    "email": "charlie@invalid",
+    "age": "invalid",
+    "department": "unknown"
+  },
+  {
+    "id": 4,
+    "name": "diana prince",
+    "email": "diana@company.com",
+    "age": 28,
+    "department": "marketing",
+    "salary": 85000
+  }
+]

@@ -1,0 +1,25 @@
+# Sample YAML configuration file
+database:
+  host: localhost
+  port: 5432
+  name: myapp
+  ssl: true
+
+api:
+  base_url: https://api.example.com
+  timeout: 30000
+  retries: 3
+  headers:
+    User-Agent: MyApp/1.0
+    Accept: application/json
+
+features:
+  - feature1
+  - feature2
+  - feature3
+
+logging:
+  level: info
+  format: json
+  output: stdout
+

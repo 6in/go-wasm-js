@@ -1,0 +1,27 @@
+{
+  "name": "yaml-wrapper",
+  "version": "1.0.0",
+  "description": "YAML wrapper library for WasmEdge QuickJS environment",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --format=esm --outfile=dist/index.js --external:none",
+    "install-deps": "npm install",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "yaml",
+    "wasm",
+    "quickjs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.19.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  }
+}
+
